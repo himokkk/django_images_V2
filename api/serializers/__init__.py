@@ -1,3 +1,3 @@
-from .image import ImageSerializer
+from .image import ImageInputSerializer, ImageSerializer
 
-__all__ = ["ImageSerializer"]
+__all__ = ["ImageSerializer", "ImageInputSerializer"]

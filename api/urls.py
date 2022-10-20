@@ -1,7 +1,8 @@
-from django.urls import path, include
+from django.urls import path
 
-from .views import ImageListView
+from .views import ImageCreateView, ImageListView, ImageUpdateView
 
 urlpatterns = [
-    path("x", ImageListView.as_view()),
+    path("image/list/", ImageListView.as_view()),
+    path("image/create/", ImageCreateView.as_view()),
 ]

@@ -1,3 +1,3 @@
-from .image import ImageListView
+from .image import ImageCreateView, ImageListView, UpdateAPIView
 
-__all__ = ["ImageListView"]
+__all__ = ["ImageListView", "ImageCreateView", "UpdateAPIView"]

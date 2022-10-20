@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib import admin
+from django.db import models
 
 
 class Image(models.Model):
@@ -9,7 +9,7 @@ class Image(models.Model):
     width = models.IntegerField()
     height = models.IntegerField()
     color = models.CharField(max_length=8, null=True, blank=True)
-    image_url = models.TextField(unique=True)
+    image_url = models.TextField()
 
 
 admin.site.register(Image)
