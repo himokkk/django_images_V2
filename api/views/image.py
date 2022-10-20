@@ -52,3 +52,8 @@ class Image_save():
 class ImageCreateView(Image_save, CreateAPIView):
     serializer_class = ImageInputSerializer
     queryset = Image.objects.all()
+
+
+class ImageUpdateView(Image_save, UpdateAPIView):
+    serializer_class = ImageInputSerializer
+    queryset = Image.objects.all()
