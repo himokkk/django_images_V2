@@ -10,14 +10,19 @@ class Image(models.Model):
     height = models.IntegerField()
 
     def hex_validator(data):
+        if not data.color:
+            return
         try:
-            int(data, 16)
+            int(str(data.color), 16)
         except ValueError:
             raise ValueError("color must be hex")
-
     color = models.CharField(
         max_length=8, null=True, blank=True, validators=[hex_validator]
     )
+
+    def save(self, *args, **kwargs):
+        self.hex_validator()
+        super().save(*args, **kwargs)
 
 
 admin.site.register(Image)
