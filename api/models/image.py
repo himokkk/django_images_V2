@@ -8,7 +8,14 @@ class Image(models.Model):
     album_id = models.IntegerField()
     width = models.IntegerField()
     height = models.IntegerField()
-    color = models.CharField(max_length=8, null=True, blank=True)
+
+    def hex_validator(data):
+        try:
+            int(data, 16)
+        except ValueError:
+            raise ValueError("color must be hex")
+
+    color = models.CharField(max_length=8, null=True, blank=True, validators=[hex_validator])
 
 
 admin.site.register(Image)
