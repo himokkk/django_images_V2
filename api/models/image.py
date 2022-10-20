@@ -5,7 +5,7 @@ from django.db import models
 class Image(models.Model):
     title = models.CharField(max_length=100)
     image = models.ImageField(upload_to="photos", null=True, blank=True)
-    album_id = models.IntegerField()
+    albumId = models.IntegerField()
     width = models.IntegerField()
     height = models.IntegerField()
 

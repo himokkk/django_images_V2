@@ -1,5 +1,6 @@
 from io import BytesIO
 import os
+import json
 
 import requests
 from django.conf import settings
@@ -7,7 +8,9 @@ from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from PIL import Image as Im
 from PIL import UnidentifiedImageError
-from rest_framework import serializers
+from rest_framework import serializers, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
 
 from ..models import Image
@@ -19,9 +22,8 @@ class ImageListView(ListAPIView):
     queryset = Image.objects.all()
 
 
-class Image_save():
-    def perform_create(self, serializer):
-        data = self.request.data
+class ImageSave:
+    def img_save(self, data):
         url = data.get("url", None)
         val = URLValidator()
         try:
@@ -30,6 +32,7 @@ class Image_save():
             raise serializers.ValidationError("not valid url")
 
         response = requests.get(url)
+        print(data)
         if not response.ok:
             raise serializers.ValidationError("Cannot fetch data from URL")
         try:
@@ -48,12 +51,31 @@ class Image_save():
         instance.image = file_name
         instance.save()
 
+    def perform_create(self, serializer):
+        data = self.request.data
+        self.img_save(data)
 
-class ImageCreateView(Image_save, CreateAPIView):
+
+class ImageCreateView(ImageSave, CreateAPIView):
     serializer_class = ImageInputSerializer
     queryset = Image.objects.all()
 
 
-class ImageUpdateView(Image_save, UpdateAPIView):
+class ImageUpdateView(ImageSave, UpdateAPIView):
     serializer_class = ImageInputSerializer
     queryset = Image.objects.all()
+
+
+class ImportImagesFromLink(ImageSave, APIView):
+    def post(self, request):
+        url = request.data.get("url", None)
+        if not url:
+            return Response("Wrong URL given", status=status.HTTP_400_BAD_REQUEST)
+        response = requests.get(url)
+        content = json.loads(response.content)
+
+        for element in content:
+            self.img_save(data=element)
+        return Response(status=status.HTTP_201_CREATED)
+
+
