@@ -10,6 +10,8 @@ class ImageSerializer(serializers.ModelSerializer):
 
 
 class ImageInputSerializer(serializers.ModelSerializer):
+    url = serializers.CharField(max_length=100, required=False)
+
     class Meta:
         model = Image
-        fields = ["title", "album_id", "color"]
+        fields = ["title", "album_id", "color", "url"]
