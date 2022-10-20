@@ -15,7 +15,9 @@ class Image(models.Model):
         except ValueError:
             raise ValueError("color must be hex")
 
-    color = models.CharField(max_length=8, null=True, blank=True, validators=[hex_validator])
+    color = models.CharField(
+        max_length=8, null=True, blank=True, validators=[hex_validator]
+    )
 
 
 admin.site.register(Image)

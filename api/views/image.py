@@ -1,6 +1,6 @@
-from io import BytesIO
-import os
 import json
+import os
+from io import BytesIO
 
 import requests
 from django.conf import settings
@@ -9,9 +9,9 @@ from django.core.validators import URLValidator
 from PIL import Image as Im
 from PIL import UnidentifiedImageError
 from rest_framework import serializers, status
+from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
 
 from ..models import Image
 from ..serializers import ImageInputSerializer, ImageSerializer
@@ -32,7 +32,6 @@ class ImageSave:
             raise serializers.ValidationError("not valid url")
 
         response = requests.get(url)
-        print(data)
         if not response.ok:
             raise serializers.ValidationError("Cannot fetch data from URL")
         try:
@@ -79,3 +78,13 @@ class ImportImagesFromLink(ImageSave, APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
+class ImportImagesFromFile(ImageSave, APIView):
+    def post(self, request):
+        file_obj = request.FILES.get("file", None)
+        if not file_obj:
+            return Response("Wrong file given", status=status.HTTP_400_BAD_REQUEST)
+
+        content = json.loads(file_obj.file.read())
+        for element in content:
+            self.img_save(data=element)
+        return Response(status=status.HTTP_201_CREATED)

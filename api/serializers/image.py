@@ -1,5 +1,5 @@
-from rest_framework import serializers
 from django.conf import settings
+from rest_framework import serializers
 
 from ..models import Image
 
@@ -13,7 +13,12 @@ class ImageSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, obj):
         if obj.image:
-            return settings.HOST + settings.MEDIA_URL + "photos/" + obj.image.url.split("/")[-1]
+            return (
+                settings.HOST
+                + settings.MEDIA_URL
+                + "photos/"
+                + obj.image.url.split("/")[-1]
+            )
         return ""
 
 
