@@ -3,6 +3,7 @@ import os
 from io import BytesIO
 
 import requests
+import validators
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
@@ -80,6 +81,8 @@ class ImportImagesFromLink(ImageSave, APIView):
         url = request.data.get("url", None)
         if not url:
             return Response("Wrong URL given", status=status.HTTP_400_BAD_REQUEST)
+        if not validators.url(url):
+            raise Response("URL not valid", status=status.HTTP_400_BAD_REQUEST)
         response = requests.get(url)
         content = json.loads(response.content)
 

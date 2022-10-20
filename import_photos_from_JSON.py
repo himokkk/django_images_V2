@@ -19,6 +19,6 @@ class ImportFromFile(ImageSave):
 
 
 filename = os.path.join("CLI", "input.json")
-if len(sys.argv) >= 1:
+if len(sys.argv) > 1:
     filename = sys.argv[1]
 instance = ImportFromFile(filename=filename)
