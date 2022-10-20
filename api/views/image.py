@@ -5,12 +5,12 @@ from io import BytesIO
 import requests
 import validators
 from django.conf import settings
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import URLValidator
 from PIL import Image as Im
 from PIL import UnidentifiedImageError
 from rest_framework import serializers, status
-from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -21,6 +21,12 @@ from ..serializers import ImageInputSerializer, ImageSerializer
 class ImageListView(ListAPIView):
     serializer_class = ImageSerializer
     queryset = Image.objects.all()
+
+
+class ImageDestroyView(DestroyAPIView):
+    serializer_class = ImageSerializer
+    queryset = Image.objects.all()
+    authentication_classes = []
 
 
 class ImageSave:
@@ -65,11 +71,15 @@ class ImageSave:
             try:
                 instance = Image.objects.get(id=id)
             except ObjectDoesNotExist:
-                return Response("Cannot find instance for this pk", status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    "Cannot find instance for this pk", status=status.HTTP_404_NOT_FOUND
+                )
             try:
                 instance.__dict__.update(**data)
             except ValidationError:
-                return Response("Cannot update instance", status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    "Cannot update instance", status=status.HTTP_400_BAD_REQUEST
+                )
 
         file_name = str(instance.id) + "." + img.format.lower()
         path = os.path.join(settings.MEDIA_ROOT, "photos", file_name)
@@ -91,7 +101,7 @@ class ImageCreateView(ImageSave, CreateAPIView):
 class ImageUpdateView(ImageSave, UpdateAPIView):
     serializer_class = ImageInputSerializer
     queryset = Image.objects.all()
-    http_method_names = ['patch']
+    http_method_names = ["patch"]
 
     def patch(self, request, *args, **kwargs):
         data = self.request.data
@@ -126,7 +136,10 @@ class ImportImagesFromFile(ImageSave, APIView):
         try:
             content = json.loads(file_content)
         except json.JSONDecodeError:
-            return Response("Cannot convert file content to json", status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                "Cannot convert file content to json",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         for element in content:
             self.img_save(data=element)

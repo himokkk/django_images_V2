@@ -9,15 +9,16 @@ class Image(models.Model):
     width = models.IntegerField()
     height = models.IntegerField()
 
-    def hex_validator(data):
-        if not data.color:
+    def hex_validator(obj):
+        if not obj.color:
             return
         try:
-            int(str(data.color), 16)
+            int(str(obj.color), 16)
         except ValueError:
             raise ValueError("color must be hex")
+
     color = models.CharField(
-        max_length=8, null=True, blank=True, validators=[hex_validator]
+        max_length=8, null=True, blank=True, validators=[hex_validator], verbose_name="dominant color"
     )
 
     def save(self, *args, **kwargs):
