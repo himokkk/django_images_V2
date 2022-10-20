@@ -55,3 +55,25 @@ class ImageTest(APITestCase):
         data["url"] = "https://www.youtube.com/"
         response = self.client.post("/api/image/create/", data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_import_list_from_file(self):
+        file = open("CLI/input.json")
+        data = {
+            "file": file
+        }
+        response = self.client.post("/api/image/import/file/", data, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        file = open("CLI/invalid_input.json")
+        data = {
+            "file": file
+        }
+        response = self.client.post("/api/image/import/file/", data, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        file = open("CLI/invalid_json_input.json")
+        data = {
+            "file": file
+        }
+        response = self.client.post("/api/image/import/file/", data, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

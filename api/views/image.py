@@ -120,10 +120,14 @@ class ImportImagesFromLink(ImageSave, APIView):
 class ImportImagesFromFile(ImageSave, APIView):
     def post(self, request):
         file_obj = request.FILES.get("file", None)
+        file_content = file_obj.file.read()
         if not file_obj:
             return Response("Wrong file given", status=status.HTTP_400_BAD_REQUEST)
+        try:
+            content = json.loads(file_content)
+        except json.JSONDecodeError:
+            return Response("Cannot convert file content to json", status=status.HTTP_400_BAD_REQUEST)
 
-        content = json.loads(file_obj.file.read())
         for element in content:
             self.img_save(data=element)
         return Response(status=status.HTTP_201_CREATED)
