@@ -45,7 +45,7 @@ class Image_save():
         file_name = str(instance.id) + "." + img.format.lower()
         path = os.path.join(settings.MEDIA_ROOT, "photos", file_name)
         img.save(path)
-        instance.Image = file_name
+        instance.image = file_name
         instance.save()
 
 

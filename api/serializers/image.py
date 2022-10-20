@@ -1,12 +1,20 @@
 from rest_framework import serializers
+from django.conf import settings
 
 from ..models import Image
 
 
 class ImageSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Image
         fields = ["id", "title", "album_id", "width", "height", "color", "image_url"]
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return settings.HOST + obj.image.url
+        return ""
 
 
 class ImageInputSerializer(serializers.ModelSerializer):
