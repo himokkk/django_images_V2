@@ -23,13 +23,13 @@ class ImageTest(APITestCase):
         }
         response = self.client.patch("/api/image/update/"+str(id), updated_data, format='json')
 
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         instance = Image.objects.first()
         self.assertEqual(instance.title, updated_data.get("title"))
         self.assertEqual(instance.albumId, updated_data.get("albumId"))
         self.assertEqual(instance.color, updated_data.get("color"))
         self.assertEqual(instance.width, 2048)
         self.assertEqual(instance.height, 2048)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_image_create(self):
         data = {
@@ -40,13 +40,13 @@ class ImageTest(APITestCase):
         }
         response = self.client.post("/api/image/create/", data, format='json')
 
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         instance = Image.objects.first()
         self.assertEqual(instance.title, data.get("title"))
         self.assertEqual(instance.albumId, data.get("albumId"))
         self.assertEqual(instance.color, data.get("color"))
         self.assertEqual(instance.width, 300)
         self.assertEqual(instance.height, 300)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         data["url"] = "12.png"
         response = self.client.post("/api/image/create/", data, format='json')
@@ -63,6 +63,16 @@ class ImageTest(APITestCase):
         }
         response = self.client.post("/api/image/import/file/", data, format='multipart')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        file.close()
+
+        file = open("CLI/input.json")
+        instance = Image.objects.first()
+        data = json.load(file)[0]
+        self.assertEqual(instance.title, data.get("title"))
+        self.assertEqual(instance.albumId, data.get("albumId"))
+        self.assertEqual(instance.color, data.get("color"))
+        self.assertEqual(instance.width, 300)
+        self.assertEqual(instance.height, 300)
 
         file = open("CLI/invalid_input.json")
         data = {
@@ -70,10 +80,20 @@ class ImageTest(APITestCase):
         }
         response = self.client.post("/api/image/import/file/", data, format='multipart')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        file.close()
 
         file = open("CLI/invalid_json_input.json")
         data = {
             "file": file
         }
         response = self.client.post("/api/image/import/file/", data, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        file.close()
+
+    def test_image_list_from_url(self):
+        data = {
+            "url": "https://jsonplaceholder.typicode.com/photos"
+        }
+        response = self.client.post("/api/image/create/", data, format='json')
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
