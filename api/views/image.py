@@ -40,7 +40,16 @@ class ImageSave:
             raise serializers.ValidationError("Cannot import image")
 
         data["width"], data["height"] = img.size
-        data.pop("url")
+        data.pop("id")
+        fields = [f.name for f in Image._meta.get_fields()]
+        key_to_pop = []
+        for key in data.keys():
+            if key not in fields:
+                key_to_pop.append(key)
+
+        for key in key_to_pop:
+            data.pop(key)
+
         ImageInputSerializer(data=data).is_valid(raise_exception=True)
         instance = Image.objects.create(**data)
 

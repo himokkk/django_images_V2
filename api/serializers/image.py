@@ -27,4 +27,4 @@ class ImageInputSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Image
-        fields = ["title", "album_id", "color", "url"]
+        fields = ["title", "albumId", "color", "url"]
