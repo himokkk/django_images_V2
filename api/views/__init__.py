@@ -1,5 +1,6 @@
-from .image import (ImageCreateView, ImageListView, ImageUpdateView,
-                    ImportImagesFromFile, ImportImagesFromLink, ImageDestroyView)
+from .image import (ImageCreateView, ImageDestroyView, ImageListView,
+                    ImageUpdateView, ImportImagesFromFile,
+                    ImportImagesFromLink)
 
 __all__ = [
     "ImageListView",
@@ -7,5 +8,5 @@ __all__ = [
     "ImageUpdateView",
     "ImportImagesFromLink",
     "ImportImagesFromFile",
-    "ImageDestroyView"
+    "ImageDestroyView",
 ]

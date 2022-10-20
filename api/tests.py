@@ -35,9 +35,7 @@ class ImageAPIViewTest(APITestCase):
         self.assertEqual(instance.height, 2048)
 
         before_delete = len(Image.objects.all())
-        response = self.client.delete(
-            "/api/image/delete/" + str(id), {}, format="json"
-        )
+        response = self.client.delete("/api/image/delete/" + str(id), {}, format="json")
         post_delete = len(Image.objects.all())
         self.assertEqual(before_delete - post_delete, 1)
 

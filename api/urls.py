@@ -1,7 +1,8 @@
 from django.urls import path
 
-from .views import (ImageCreateView, ImageListView, ImageUpdateView,
-                    ImportImagesFromFile, ImportImagesFromLink, ImageDestroyView)
+from .views import (ImageCreateView, ImageDestroyView, ImageListView,
+                    ImageUpdateView, ImportImagesFromFile,
+                    ImportImagesFromLink)
 
 urlpatterns = [
     path("image/list/", ImageListView.as_view()),

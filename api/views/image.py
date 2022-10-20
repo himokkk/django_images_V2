@@ -1,21 +1,16 @@
 import json
-import os
-from io import BytesIO
 
 import requests
 import validators
-from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.validators import URLValidator
-from PIL import Image as Im
-from PIL import UnidentifiedImageError
-from rest_framework import serializers, status
-from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework import status
+from rest_framework.generics import (CreateAPIView, DestroyAPIView,
+                                     ListAPIView, UpdateAPIView)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from ..models import Image
 from ..serializers import ImageInputSerializer, ImageSerializer
+from .image_save import ImageSave
 
 
 class ImageListView(ListAPIView):
@@ -27,66 +22,6 @@ class ImageDestroyView(DestroyAPIView):
     serializer_class = ImageSerializer
     queryset = Image.objects.all()
     authentication_classes = []
-
-
-class ImageSave:
-    def img_save(self, data, update=False, id=None):
-        url = data.get("url", None)
-        val = URLValidator()
-        try:
-            val(url)
-        except ValidationError:
-            raise serializers.ValidationError("not valid url")
-
-        response = requests.get(url)
-        if not response.ok:
-            raise serializers.ValidationError("Cannot fetch data from URL")
-        try:
-            img = Im.open(BytesIO(response.content))
-        except UnidentifiedImageError:
-            raise serializers.ValidationError("Cannot import image")
-
-        data["width"], data["height"] = img.size
-        if isinstance(data["albumId"], str):
-            try:
-                data["albumId"] = int(data["albumId"])
-            except UnidentifiedImageError:
-                raise serializers.ValidationError("albbumId not a int")
-        if "id" in data:
-            data.pop("id")
-        fields = [f.name for f in Image._meta.get_fields()]
-        key_to_pop = []
-        for key in data.keys():
-            if key not in fields:
-                key_to_pop.append(key)
-
-        for key in key_to_pop:
-            data.pop(key)
-
-        serialized_data = ImageInputSerializer(data=data)
-        serialized_data.is_valid(raise_exception=True)
-        if not update:
-            instance = Image.objects.create(**data)
-        else:
-            try:
-                instance = Image.objects.get(id=id)
-            except ObjectDoesNotExist:
-                return Response(
-                    "Cannot find instance for this pk", status=status.HTTP_404_NOT_FOUND
-                )
-            try:
-                instance.__dict__.update(**data)
-            except ValidationError:
-                return Response(
-                    "Cannot update instance", status=status.HTTP_400_BAD_REQUEST
-                )
-
-        file_name = str(instance.id) + "." + img.format.lower()
-        path = os.path.join(settings.MEDIA_ROOT, "photos", file_name)
-        img.save(path)
-        instance.image = file_name
-        instance.save()
-        return Response(serialized_data.data)
 
 
 class ImageCreateView(ImageSave, CreateAPIView):
@@ -105,11 +40,10 @@ class ImageUpdateView(ImageSave, UpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         data = self.request.data
-        id = kwargs.get("pk", None)
+        pk = kwargs.get("pk", None)
         if not id:
             raise Exception("Missing pk in URL")
-        x = self.img_save(data, update=True, id=id)
-        return x
+        return self.img_save(data, update=True, pk=pk)
 
 
 class ImportImagesFromLink(ImageSave, APIView):
